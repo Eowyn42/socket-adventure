@@ -113,7 +113,8 @@ class Server(object):
 
         received = b''
         while b'\n' not in received:
-            received += self.client_connection.read(16)
+            received += self.client_connection.recv(16)
+            #received += self.client_connection.read(16)  # sockets cannot read()
 
         self.input_buffer = received.decode()
 
@@ -125,15 +126,15 @@ class Server(object):
         :param argument: str
         :return: None
         """
+        argument = argument.strip()
 
-        if self.room == 0 and argument == "north":
-            self.room = 3
-
-        if self.room == 0 and argument == "west":
-            self.room = 1
-
-        if self.room == 0 and argument == "east":
-            self.room = 2
+        if self.room == 0:
+            if argument == "north":
+                self.room = 3
+            elif argument == "west":
+                self.room = 1
+            elif argument == "east":
+                self.room = 2
 
         if self.room == 1 and argument == "east":
             self.room = 0
@@ -188,7 +189,7 @@ class Server(object):
 
         received = self.input_buffer.split(" ")
 
-        command = received.pop(0)
+        command = received.pop(0).strip()
         arguments = " ".join(received)
 
         # If `self.input_buffer` was "say Is anybody here?", then:
